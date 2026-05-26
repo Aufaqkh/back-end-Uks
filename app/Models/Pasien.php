@@ -7,11 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Pasien extends Model
 {
     use HasFactory;
-protected $table = 'pasien'; // ← TAMBAH INI!
-    protected $fillable = [
-        'user_id', 'nisn', 'nama_lengkap', 'kelas', 'jurusan', 'no_hp'
-    ];
+    
+    protected $table = 'pasien'; // Mengunci agar Laravel membaca tabel 'pasien'
 
+    protected $fillable = [
+        'user_id',
+        'nisn',
+        'name',
+        'kelas',
+        'no_hp'
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);

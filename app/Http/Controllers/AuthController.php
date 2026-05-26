@@ -13,15 +13,18 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'nisn' => 'required|string|unique:users|unique:pasien',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:pasien,petugas,admin',
-            'kelas' => 'required_if:role,pasien',
-        ]);
+$validator = Validator::make($request->all(), [
+    'name'     => 'required|string|max:255',
+    // Kita buat emailnya wajib berformat email asli (.com/.id dll) bray
+    'email'    => 'required|string|email|max:255|unique:users',
+    'password' => 'required|string|min:8|confirmed',
+    'role'     => 'required|string|in:admin,petugas,siswa',
+    'nisn'     => 'nullable|string',
 
+    // 💡 TAKTIK JITU: Kolom kelas HANYA required kalau rolenya 'siswa'.
+    // Kalau rolenya 'petugas' atau 'admin', dia berubah jadi 'nullable' (boleh null/kosong)!
+    'kelas'    => $request->role === 'siswa' ? 'required|string' : 'nullable|string',
+]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
