@@ -21,7 +21,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // 🔥 INI OBATNYA: Jalur kunjungan kita buka buat semua role biar Siswa bisa ngeluh sakit!
+    // 🔥 JALUR AJIB: Kita buka fitur LIHAT OBAT di sini biar Siswa bisa akses!
+    Route::get('/obats', [ObatController::class, 'index']);
+    Route::get('/obats/{obat}', [ObatController::class, 'show']);
+
+    // Jalur kunjungan terbuka buat semua role biar Siswa bisa ngeluh sakit!
     Route::middleware('role:admin,petugas,siswa,pasien')->group(function () {
         Route::apiResource('kunjungan', KunjunganController::class);
     });
@@ -31,7 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/pasien', [PasienController::class, 'index']);
         Route::post('/pasien', [PasienController::class, 'store']);
         Route::post('kunjungan/{kunjungan}/status', [KunjunganController::class, 'updateStatus']);
-        Route::apiResource('obats', ObatController::class);
+
+        // 🔥 JALUR AMAN: Fitur manipulasi obat dikurung ketat di sini (Siswa dijamin gak bisa tembus)
+        Route::post('/obats', [ObatController::class, 'store']);
+        Route::put('/obats/{obat}', [ObatController::class, 'update']);
+        Route::delete('/obats/{obat}', [ObatController::class, 'destroy']);
+
         Route::get('notifikasis', [NotifikasiController::class, 'index']);
         Route::post('notifikasis/{id}/read', [NotifikasiController::class, 'markAsRead']);
     });

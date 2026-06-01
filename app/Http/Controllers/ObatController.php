@@ -4,13 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Obat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ObatController extends Controller
 {
-    // Fungsi bawaan lu buat nampilin data (Udah bener banget ini)
-   public function store(Request $request)
+    // 1. Tampil Semua Data
+    public function index()
     {
-        // 1. Validasi inputan dari Vue
+        return Obat::latest()->paginate(10);
+    }
+
+    // 2. Tambah Data Baru
+    public function store(Request $request)
+    {
         $request->validate([
             'nama_obat' => 'required|string|max:255',
             'stok'      => 'required|integer',
@@ -18,27 +24,51 @@ class ObatController extends Controller
         ]);
 
         try {
-            // 2. Simpan ke database
             $obat = Obat::create([
-                // 🔥 INI YANG DIGANTI! Biar nyambung sama kolom database lu 🔥
                 'nama'      => $request->nama_obat,
                 'stok'      => $request->stok,
                 'kategori'  => $request->kategori,
                 'harga'     => 0,
             ]);
 
-            // 3. Laporan sukses ke Vue
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Obat berhasil ditambahkan bre!',
-                'data'    => $obat
-            ], 201);
-
+            return response()->json(['message' => 'Obat berhasil ditambahkan!', 'data' => $obat], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal simpan ke database: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['message' => 'Gagal: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // 3. Edit / Update Data
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nama_obat' => 'required|string|max:255',
+            'stok'      => 'required|integer',
+            'kategori'  => 'required|string',
+        ]);
+
+        try {
+            $obat = Obat::findOrFail($id);
+            $obat->update([
+                'nama'      => $request->nama_obat,
+                'stok'      => $request->stok,
+                'kategori'  => $request->kategori,
+            ]);
+
+            return response()->json(['message' => 'Obat berhasil diupdate!']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal update: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // 4. Hapus Data
+    public function destroy($id)
+    {
+        try {
+            $obat = Obat::findOrFail($id);
+            $obat->delete();
+            return response()->json(['message' => 'Obat berhasil dihapus!']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal hapus: ' . $e->getMessage()], 500);
         }
     }
 }

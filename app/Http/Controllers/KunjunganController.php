@@ -4,56 +4,59 @@ namespace App\Http\Controllers;
 
 use App\Models\Kunjungan;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class KunjunganController extends Controller
 {
+    // 1. INI PINTU BUAT NAMPILIN DATA DI TABEL (WAJIB ADA)
     public function index()
     {
         return Kunjungan::with('user')->latest()->paginate(10);
     }
 
+    // 2. INI BUAT NYIMPAN DATA BARU
     public function store(Request $request)
     {
-        // ✅ VALIDASI DIBUKA BIAR NERIMA STATUS & JEMPUT DARI VUE
         $validated = $request->validate([
             'nama_pasien' => 'required|string|max:255',
-            'umur' => 'required|integer|min:1|max:120',
+            'umur' => 'required|integer',
             'keluhan' => 'required|string',
-            'status' => 'required|string',         // 🔥 Wajib ada
-            'status_jemput' => 'required|string',  // 🔥 Wajib ada
+            'status' => 'required|string',
+            'status_jemput' => 'required|string',
         ]);
 
-        $kunjungan = Kunjungan::create([
+        return Kunjungan::create([
             'nama_pasien' => $validated['nama_pasien'],
             'umur' => $validated['umur'],
             'keluhan' => $validated['keluhan'],
-            'user_id' => $request->user()->id,              // ✅ AUTO dari user yang login
-            'status' => $validated['status'],               // ✅ Ngambil dari pilihan Vue (menunggu/proses/selesai)
-            'status_jemput' => $validated['status_jemput'], // ✅ Ngambil dari pilihan Vue (ya/tidak)
+            'user_id' => $request->user()->id,
+            'status' => $validated['status'],
+            'status_jemput' => $validated['status_jemput'],
         ]);
-
-        return response()->json($kunjungan, 201);
     }
 
-    public function show(Kunjungan $kunjungan)
+    // 3. INI FUNGSI SAKTI BUAT JEMPUTAN (YANG TADI KITA KERJAIN)
+    public function updateStatus(Request $request, Kunjungan $kunjungan)
     {
-        return response()->json($kunjungan->load('user'));
-    }
-
-    public function update(Request $request, Kunjungan $kunjungan)
-    {
-        // ✅ Gua tambahin status_jemput di sini biar nanti kalau lu bikin fitur Edit, datanya aman
         $request->validate([
             'status' => 'sometimes|in:menunggu,proses,selesai',
-            'status_jemput' => 'sometimes|in:tidak,ya',
-            'catatan_dokter' => 'nullable|string',
+            'status_jemput' => 'sometimes|in:datang,jemput,disetujui',
         ]);
 
-        $kunjungan->update($request->only(['status', 'status_jemput', 'catatan_dokter']));
-        return response()->json($kunjungan->load('user'));
+        try {
+            if ($request->has('status')) { $kunjungan->status = $request->status; }
+            if ($request->has('status_jemput')) { $kunjungan->status_jemput = $request->status_jemput; }
+
+            $kunjungan->save();
+            return response()->json($kunjungan->load('user'));
+
+        } catch (\Exception $e) {
+            Log::error('Gagal update status: ' . $e->getMessage());
+            return response()->json(['message' => 'Gagal simpan: ' . $e->getMessage()], 500);
+        }
     }
 
+    // 4. JANGAN LUPA FUNGSI LAINNYA
     public function destroy(Kunjungan $kunjungan)
     {
         $kunjungan->delete();

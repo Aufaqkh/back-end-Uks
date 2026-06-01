@@ -51,12 +51,13 @@ class PasienController extends Controller
         }
 
         // Memasukkan data ke kolom database asli kamu bray
+// 🔥 GANTI 'name' JADI 'nama_lengkap' 🔥
         $pasien = Pasien::create([
-            'user_id' => $request->user()->id,
-            'name'    => $request->nama_lengkap,
-            'nisn'    => $request->nisn,
-            'kelas'   => $request->kelas,
-            'no_hp'   => $request->no_hp,
+            'user_id'      => $request->user()->id,
+            'nama_lengkap' => $request->nama_lengkap, // <--- INI YG BENER!
+            'nisn'         => $request->nisn,
+            'kelas'        => $request->kelas,
+            'no_hp'        => $request->no_hp,
         ]);
 
         return response()->json([
