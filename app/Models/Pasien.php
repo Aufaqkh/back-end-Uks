@@ -7,15 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Pasien extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'pasien'; // Mengunci agar Laravel membaca tabel 'pasien'
 
     protected $fillable = [
         'user_id',
         'nisn',
-        'name',
+        'nama_lengkap', // ← 🔥 TAMBAHIN INI DI SINI BRE 🔥
         'kelas',
-        'no_hp'
     ];
     public function user()
     {

@@ -13,10 +13,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable([
-    'name', 
-    'email', 
+    'name',
+    'email',
     'nisn',  // ← NISN bukan NIS
-    'role', 
+    'role',
+    'kelas', // ← 🔥 UDAH DITAMBAHIN DI SINI BRE!
     'password'
 ])]
 #[Hidden(['password', 'remember_token'])]
