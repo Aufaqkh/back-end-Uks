@@ -13,9 +13,11 @@ class Pasien extends Model
     protected $fillable = [
         'user_id',
         'nisn',
-        'nama_lengkap', // ← 🔥 TAMBAHIN INI DI SINI BRE 🔥
+        'nama_lengkap',
         'kelas',
+        'no_hp', // ← 🔥 INI DIA TERSANGKANYA, WAJIB ADA DI SINI BRE! 🔥
     ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -8,9 +8,15 @@ use Illuminate\Support\Facades\Log;
 
 class KunjunganController extends Controller
 {
-    // 1. INI PINTU BUAT NAMPILIN DATA DI TABEL (WAJIB ADA)
-    public function index()
+    // 1. INI PINTU BUAT NAMPILIN DATA (UDAH DIMODIFIKASI JALUR SISWA)
+    public function index(Request $request) // 🔥 Pastiin ada Request $request di sini
     {
+        // Kalo yang ngakses adalah SISWA, cuma tampilin riwayat dia sendiri bray
+        if ($request->user()->role === 'siswa') {
+            return Kunjungan::where('user_id', $request->user()->id)->latest()->paginate(10);
+        }
+
+        // Kalo ADMIN / PETUGAS, tampilin semua data pasien
         return Kunjungan::with('user')->latest()->paginate(10);
     }
 
@@ -23,6 +29,7 @@ class KunjunganController extends Controller
             'keluhan' => 'required|string',
             'status' => 'required|string',
             'status_jemput' => 'required|string',
+            'lokasi_jemput' => 'nullable|string',
         ]);
 
         return Kunjungan::create([
@@ -32,10 +39,11 @@ class KunjunganController extends Controller
             'user_id' => $request->user()->id,
             'status' => $validated['status'],
             'status_jemput' => $validated['status_jemput'],
+            'lokasi_jemput' => $validated['lokasi_jemput'] ?? null,
         ]);
     }
 
-    // 3. INI FUNGSI SAKTI BUAT JEMPUTAN (YANG TADI KITA KERJAIN)
+    // 3. INI FUNGSI SAKTI BUAT JEMPUTAN
     public function updateStatus(Request $request, Kunjungan $kunjungan)
     {
         $request->validate([

@@ -10,10 +10,11 @@ class Kunjungan extends Model
 {
     protected $fillable = [
         'user_id',
-        'nama_pasien', 
+        'nama_pasien',
         'umur',
         'keluhan',
         'status_jemput',
+        'lokasi_jemput', // 🔥 INI YANG TADI KETINGGALAN BRE 🔥
         'status',
         'catatan_dokter'
     ];
